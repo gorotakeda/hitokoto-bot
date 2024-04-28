@@ -1,0 +1,7 @@
+# misc
+.DS_Store
+*.pem
+__pycache__
+
+.env
+flask_session

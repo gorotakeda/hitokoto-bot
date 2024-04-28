@@ -1,0 +1,8 @@
+flask==2.3.2
+openai
+flask_session
+black
+python-dotenv
+retry
+gunicorn==21.2.0
+requests
