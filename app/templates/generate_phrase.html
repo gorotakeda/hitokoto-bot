@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ひとこと生成BOT君</title>
+</head>
+<body>
+    <input type="text" id="keywordInput" placeholder="キーワードを入力">
+    <button id="generateBtn">ひとこと生成</button>
+    <div id="phraseDisplay"></div>
+    <script src="{{ url_for('static', filename='generate_phrase.js') }}"></script>
+</body>
+</html>
