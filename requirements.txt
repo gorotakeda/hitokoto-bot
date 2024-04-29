@@ -6,3 +6,4 @@ python-dotenv
 retry
 gunicorn==21.2.0
 requests
+beautifulsoup4

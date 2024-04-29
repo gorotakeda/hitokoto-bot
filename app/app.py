@@ -3,7 +3,6 @@ from openai import OpenAI
 from dotenv import load_dotenv
 import os
 import requests
-import random
 
 load_dotenv()
 app = Flask(__name__)
@@ -15,42 +14,37 @@ app.secret_key = secret_key
 def generate_phrase_page():
     return render_template("generate_phrase.html")
 
-def fetch_news_and_generate_phrase(keyword):
+def get_news_titles():
     news_api_key = os.getenv("NEWS_API_KEY")
-    url = f"https://newsapi.org/v2/everything?q={keyword}&sortBy=publishedAt&apiKey={news_api_key}"
+    url = "https://newsapi.org/v2/top-headlines?country=jp&apiKey=" + news_api_key
     response = requests.get(url)
     data = response.json()
+    if 'articles' in data:
+        titles = [article['title'] for article in data['articles']]
+        return titles[:20]
+    return []
 
-    if 'articles' not in data or not data['articles']:
-        return None, "指定されたキーワードのニュースはありません。"
+@app.route("/titles")
+def get_titles():
+    titles = get_news_titles()
+    return jsonify({"titles": titles})
 
-    random_article = random.choice(data["articles"])
-    title = random_article["title"][:60]  # タイトルを取得
-    description = random_article.get("description", "")  # 記事の説明（本文）を取得
-    full_text = f"{title}\n{description}"  # タイトルと説明を組み合わせる
-    return full_text, None
+@app.route("/generate_phrase", methods=["GET"])
+def fetch_news():
+    title = request.args.get('title')
+    if not title:
+        return jsonify({"error": "タイトルが指定されていません。"}), 400
+    opinion = create_opinion(title)
+    return jsonify({"opinion": opinion})
 
-def generate_opinion_from_article(article_text):
+def create_opinion(title):
     client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-
-    # プロンプトの設定
-    prompt = f"以下のニュース記事のタイトルと記事内容に基づいて、40字以内の感想を教えてください:\n{article_text}"
-
-    # テキスト生成を行う
+    prompt = f"以下のニュースのタイトル「{title}」に基づいて、40字以内の感想にまとめてください。"
     response = client.chat.completions.create(
         messages=[
             {"role": "user", "content": prompt}
         ],
-        model="gpt-3.5-turbo",
+        model="gpt-4-turbo-preview",
     )
     opinion = response.choices[0].message.content.strip()
-    return opinion[:100]  # 必要に応じて文字数制限を調整
-
-@app.route("/generate_phrase", methods=["GET"])
-def fetch_news():
-    keyword = request.args.get('keyword', '')
-    article_text, error_message = fetch_news_and_generate_phrase(keyword)
-    if error_message:
-        return jsonify({"error": error_message}), 404
-    opinion = generate_opinion_from_article(article_text)
-    return jsonify({"opinion": opinion})
+    return opinion[:100]
