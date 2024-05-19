@@ -19,9 +19,6 @@
 - heroku container:release web -a news-hitokoto-bot
 - heroku restart -a news-hitokoto-bot
 - heroku open -a news-hitokoto-bot
-
-## ER図
-
-
+  
 ## URL
-http://localhost:5002/
+https://news-hitokoto-bot-f3b4988ed870.herokuapp.com/
