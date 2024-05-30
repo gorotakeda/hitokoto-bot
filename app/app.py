@@ -44,7 +44,7 @@ def create_opinion(title):
         messages=[
             {"role": "user", "content": prompt}
         ],
-        model="gpt-4-turbo-preview",
+        model="gpt-4o",
     )
     opinion = response.choices[0].message.content.strip()
     return opinion[:100]
